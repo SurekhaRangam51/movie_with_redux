@@ -8,6 +8,13 @@ import InputBase from '@mui/material/InputBase';
 
 import SearchIcon from '@mui/icons-material/Search';
 import SelectComponent from './NavComponents/SelectComponent';
+import { useDispatch,useSelector } from 'react-redux';
+import { setSearchValue } from '../slice/MovieSlice';
+import { getMoviesBySearch ,getAllGenre,getByRating, getAllRating} from '../api/movies';
+import { useEffect } from 'react';
+import { debounce } from 'lodash';
+
+
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -50,13 +57,43 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+
+
 export default function Navbar() {
+ const dispatch=useDispatch()
+ //const {searchValue}=useSelector(state=>state.movies )
+
+// search without api
+//  const setSearch=(e)=>{
+//   dispatch(setSearchValue(e.target.value))
+// }
+//console.log(searchValue)
+
+//search with api
+const setSearch=debounce((e)=>{
+  dispatch(getMoviesBySearch(e.target.value))
+},500)
+
+
+
+useEffect(()=>{
+  dispatch(getAllGenre())
+  dispatch(getAllRating())
+},[])
+
+
  
+const {genre,rating}= useSelector(state=>state.movies)
+
+console.log("rating",rating)
+
+
+
   
 
    return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="fixed">
+      <AppBar position="fixed" >
         <Toolbar>
           
           <Typography
@@ -67,7 +104,7 @@ export default function Navbar() {
           >
             Movies App
           </Typography>
-          <Search>
+          <Search onChange={setSearch}>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -78,8 +115,8 @@ export default function Navbar() {
           </Search>
           <Box sx={{flexGrow:1}} />
           <Box sx={{ display:{xs:"none",md:"flex"}}} />
-          <SelectComponent />
-          <SelectComponent />
+          <SelectComponent name="Genres" value={genre}/>
+          <SelectComponent name="Rating" value={rating}/>
         </Toolbar>
         
       </AppBar>
